@@ -15,3 +15,4 @@ seurat_obj1[["percent.cp"]] <- PercentageFeatureSet(seurat_obj1, pattern = "^CP-
 seurat_obj1[["percent.mt"]] <- PercentageFeatureSet(seurat_obj1, pattern = "^MT-")
 VlnPlot(seurat_obj1, features = c("nFeature_RNA", "nCount_RNA", "percent.mt", "percent.cp"), ncol = 4)
 FeatureScatter(seurat_obj1, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+saveRDS(seurat_obj1, file = "Lemna_seurat1.rds")
