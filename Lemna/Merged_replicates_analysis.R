@@ -1,6 +1,6 @@
 library(Seurat)
-P1_lemna <- readRDS("/lustre/project/m2_jgu-evoltroph/achakrab/LA_cellranger_analysis/Final_separate_seurat_analysis/upto_scdblFinder_QC/P1_lemna_1.rds")
-P2_lemna <- readRDS("/lustre/project/m2_jgu-evoltroph/achakrab/LA_cellranger_analysis/Final_separate_seurat_analysis/upto_scdblFinder_QC/P2_lemna_1.rds")
+P1_lemna <- readRDS("Lemna_seurat1.rds")
+P2_lemna <- readRDS("Lemna_seurat2.rds")
 P1_lemna <- subset(P1_lemna, subset = nFeature_RNA > 200 & nFeature_RNA < 4000 & nCount_RNA > 500 & nCount_RNA < 10000 & percent.mt < 0.25 & percent.cp < 0.15)
 print(P1_lemna)
 P2_lemna <- subset(P2_lemna, subset = nFeature_RNA > 200 & nFeature_RNA < 4000 & nCount_RNA > 500 & nCount_RNA < 10000 & percent.mt < 0.25 & percent.cp < 0.15)
