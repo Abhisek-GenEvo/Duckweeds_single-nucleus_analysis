@@ -1,0 +1,1 @@
+This repository contains the scripts used for single-nucleus RNA-Seq and single-nucleus ATAC-Seq (multiome) data analysis of Wolffia sp. and single-nucleus RNA-Seq data analysis of Lemna sp. (Manuscript in preparation)
