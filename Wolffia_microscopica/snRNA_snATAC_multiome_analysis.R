@@ -28,53 +28,53 @@ gr_multi <- GRanges(seqnames = gtf_data_multi$seqnames,
                type = gtf_data_multi$type)
 
 -----------------------
-seurat_wolffia_multi <- CreateSeuratObject(counts = wolffia_multiome_data$`Gene Expression`, assay = "RNA", project = "wolffia_multi")
-seurat_wolffia_multi[['ATAC']] <- CreateChromatinAssay(counts = wolffia_multiome_data$`Peaks`, annotation = gr_multi, fragments = "atac_fragments.tsv.gz", sep = c(":", "-"))
-seurat_wolffia_multi <- PercentageFeatureSet(seurat_wolffia_multi, pattern = "^MT-", col.name = "percent.mt", assay = "RNA")
-seurat_wolffia_multi <- PercentageFeatureSet(seurat_wolffia_multi, pattern = "^CP-", col.name = "percent.cp", assay = "RNA")
-seurat_wolffia_multi <- NucleosomeSignal(seurat_wolffia_multi, assay = "ATAC")
-seurat_wolffia_multi <- TSSEnrichment(seurat_wolffia_multi, assay = "ATAC")
-VlnPlot(seurat_wolffia_multi, features = c("nFeature_RNA", "percent.mt", "percent.cp", "nFeature_ATAC", "TSS.enrichment", "nucleosome_signal"), ncol = 6, pt.size = 0)
-seurat_wolffia_multi <- subset(seurat_wolffia_multi, subset = nFeature_RNA > 100 & nFeature_RNA < 3000 & percent.mt < 1 & percent.cp < 0.5 & nFeature_ATAC > 100 & nFeature_ATAC < 18000 & TSS.enrichment > 1 & nucleosome_signal < 1)
+seurat_obj <- CreateSeuratObject(counts = multiome_data$`Gene Expression`, assay = "RNA", project = "wolffia_multiome")
+seurat_obj[['ATAC']] <- CreateChromatinAssay(counts = multiome_data$`Peaks`, annotation = gr_multi, fragments = "atac_fragments.tsv.gz", sep = c(":", "-"))
+seurat_obj <- PercentageFeatureSet(seurat_obj, pattern = "^MT-", col.name = "percent.mt", assay = "RNA")
+seurat_obj <- PercentageFeatureSet(seurat_obj, pattern = "^CP-", col.name = "percent.cp", assay = "RNA")
+seurat_obj <- NucleosomeSignal(seurat_obj, assay = "ATAC")
+seurat_obj <- TSSEnrichment(seurat_obj, assay = "ATAC")
+VlnPlot(seurat_obj, features = c("nFeature_RNA", "percent.mt", "percent.cp", "nFeature_ATAC", "TSS.enrichment", "nucleosome_signal"), ncol = 6, pt.size = 0)
+seurat_obj <- subset(seurat_obj, subset = nFeature_RNA > 100 & nFeature_RNA < 3000 & percent.mt < 1 & percent.cp < 0.5 & nFeature_ATAC > 100 & nFeature_ATAC < 18000 & TSS.enrichment > 1 & nucleosome_signal < 1)
 
-DefaultAssay(seurat_wolffia_multi) <- "RNA"
-seurat_wolffia_multi <- NormalizeData(seurat_wolffia_multi) %>%
+DefaultAssay(seurat_obj) <- "RNA"
+seurat_obj <- NormalizeData(seurat_obj) %>%
   FindVariableFeatures(nfeatures = 3000) %>%
   ScaleData() %>%
   RunPCA(npcs = 50) %>%
   RunUMAP(dims = 1:20, reduction.name = "umap_rna", reduction.key = "UMAPRNA_")
 
-seurat_wolffia_multi <- FindNeighbors(seurat_wolffia_multi,
+seurat_obj <- FindNeighbors(seurat_obj,
                         reduction = "umap_rna",
-                        dims = 1:ncol(Embeddings(seurat_wolffia_multi,"umap_rna"))) %>%
+                        dims = 1:ncol(Embeddings(seurat_obj,"umap_rna"))) %>%
                         FindClusters(resolution = 0.5)
 
-DefaultAssay(seurat_wolffia_multi) <- "ATAC"
-seurat_wolffia_multi <- FindTopFeatures(seurat_wolffia_multi, min.cutoff = 50)
-seurat_wolffia_multi <- RunTFIDF(seurat_wolffia_multi, method = 1)
-seurat_wolffia_multi <- RunSVD(seurat_wolffia_multi, n = 50)
-p1 <- ElbowPlot(seurat_wolffia_multi, ndims = 30, reduction="lsi")
-p2 <- DepthCor(seurat_wolffia_multi, n = 30)
+DefaultAssay(seurat_obj) <- "ATAC"
+seurat_obj <- FindTopFeatures(seurat_obj, min.cutoff = 50)
+seurat_obj <- RunTFIDF(seurat_obj, method = 1)
+seurat_obj <- RunSVD(seurat_obj, n = 50)
+p1 <- ElbowPlot(seurat_obj, ndims = 30, reduction="lsi")
+p2 <- DepthCor(seurat_obj, n = 30)
 p1 | p2
-seurat_wolffia_multi <- RunUMAP(seurat_wolffia_multi,
+seurat_obj <- RunUMAP(seurat_obj,
                   reduction = "lsi",
                   dims = 2:30,
                   reduction.name = "umap_atac",
                   reduction.key = "UMAPATAC_")
-seurat_wolffia_multi <- FindMultiModalNeighbors(seurat_wolffia_multi,
+seurat_obj <- FindMultiModalNeighbors(seurat_obj,
                                   reduction.list = list("pca", "lsi"),
-                                  dims.list = list(1:ncol(Embeddings(seurat_wolffia_multi,"pca")),
-                                                   1:ncol(Embeddings(seurat_wolffia_multi,"lsi"))),
+                                  dims.list = list(1:ncol(Embeddings(seurat_obj,"pca")),
+                                                   1:ncol(Embeddings(seurat_obj,"lsi"))),
                                   modality.weight.name = c("RNA.weight","ATAC.weight"),
                                   verbose = TRUE)
-seurat_wolffia_multi <- RunUMAP(seurat_wolffia_multi, nn.name = "weighted.nn", assay = "RNA")
-seurat_wolffia_multi <- FindClusters(seurat_wolffia_multi, graph.name = "wsnn", resolution = 0.5)
-UMAPPlot(seurat_wolffia_multi, group.by = "orig.ident") & NoAxes()
-UMAPPlot(seurat_wolffia_multi, group.by = "wsnn_res.0.5", label=T) 
+seurat_obj <- RunUMAP(seurat_obj, nn.name = "weighted.nn", assay = "RNA")
+seurat_obj <- FindClusters(seurat_obj, graph.name = "wsnn", resolution = 0.5)
+UMAPPlot(seurat_obj, group.by = "orig.ident") & NoAxes()
+UMAPPlot(seurat_obj, group.by = "wsnn_res.0.5", label=T) 
 
 #Marker genes
-DefaultAssay(seurat_wolffia_multi) <- "RNA"
-markers_wolffia_multiome_final <- FindAllMarkers(seurat_wolffia_multi, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
+DefaultAssay(seurat_obj) <- "RNA"
+markers_seurat_obj <- FindAllMarkers(seurat_obj, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
 
 
 
