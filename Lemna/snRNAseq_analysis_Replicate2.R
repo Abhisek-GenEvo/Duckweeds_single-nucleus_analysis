@@ -1,18 +1,20 @@
 library(Seurat)
-P2_rna <- Read10X_h5("filtered_feature_bc_matrix_P2.h5")
-seurat_obj2 <- CreateSeuratObject(counts = P2_rna, project = "seurat_obj2")
+Lemna_seurat2 <- Read10X_h5("filtered_feature_bc_matrix_P2.h5")
+seurat_obj2 <- CreateSeuratObject(counts = Lemna_seurat2, project = "seurat_obj2")
 seurat_obj2 <- subset(seurat_obj2, subset = nCount_RNA > 500)
-
+--------
+#Removing the doublets
 library(scDblFinder)
 library(SingleCellExperiment)
 set.seed(123)
-sce_P2 <- as.SingleCellExperiment(P2_lemna)
+sce_P2 <- as.SingleCellExperiment(seurat_obj2)
 sce_P2 <- scDblFinder(sce_P2)
-P2_lemna$scDblFinder.class <- sce_P2$scDblFinder.class
-P2_lemna$scDblFinder.score <- sce_P2$scDblFinder.score
-P2_lemna <- subset(P2_lemna, subset = scDblFinder.class == 'singlet')
-P2_lemna[["percent.cp"]] <- PercentageFeatureSet(P2_lemna, pattern = "^CP-")
-P2_lemna[["percent.mt"]] <- PercentageFeatureSet(P2_lemna, pattern = "^MT-")
-VlnPlot(P2_lemna, features = c("nFeature_RNA", "nCount_RNA", "percent.mt", "percent.cp"), ncol = 4)
-FeatureScatter(P2_lemna, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
-saveRDS(P2_lemna, file = "/lustre/project/m2_jgu-evoltroph/achakrab/LA_cellranger_analysis/Final_separate_seurat_analysis/upto_scdblFinder_QC/P2_lemna_1.rds")
+seurat_obj2$scDblFinder.class <- sce_P2$scDblFinder.class
+seurat_obj2$scDblFinder.score <- sce_P2$scDblFinder.score
+seurat_obj2 <- subset(seurat_obj2, subset = scDblFinder.class == 'singlet')
+--------
+seurat_obj2[["percent.cp"]] <- PercentageFeatureSet(seurat_obj2, pattern = "^CP-")
+seurat_obj2[["percent.mt"]] <- PercentageFeatureSet(seurat_obj2, pattern = "^MT-")
+VlnPlot(seurat_obj2, features = c("nFeature_RNA", "nCount_RNA", "percent.mt", "percent.cp"), ncol = 4)
+FeatureScatter(seurat_obj2, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+saveRDS(seurat_obj2, file = "Lemna_seurat2.rds")
