@@ -7,10 +7,10 @@ seurat_obj2 <- subset(seurat_obj2, subset = nCount_RNA > 500)
 library(scDblFinder)
 library(SingleCellExperiment)
 set.seed(123)
-sce_P2 <- as.SingleCellExperiment(seurat_obj2)
-sce_P2 <- scDblFinder(sce_P2)
-seurat_obj2$scDblFinder.class <- sce_P2$scDblFinder.class
-seurat_obj2$scDblFinder.score <- sce_P2$scDblFinder.score
+sce_obj2 <- as.SingleCellExperiment(seurat_obj2)
+sce_obj2 <- scDblFinder(sce_obj2)
+seurat_obj2$scDblFinder.class <- sce_obj2$scDblFinder.class
+seurat_obj2$scDblFinder.score <- sce_obj2$scDblFinder.score
 seurat_obj2 <- subset(seurat_obj2, subset = scDblFinder.class == 'singlet')
 --------
 seurat_obj2[["percent.cp"]] <- PercentageFeatureSet(seurat_obj2, pattern = "^CP-")
